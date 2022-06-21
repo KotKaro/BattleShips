@@ -60,7 +60,14 @@ public class Coordinates
         }
 
         var coordinateX = letterValue == 74 ? 10 : int.Parse(((char)(letterValue - 16)).ToString());
-        var coordinateY = int.Parse(text.Substring(1));
+        var isSecondPartDigit = int.TryParse(text.Substring(1), out var coordinateY);
+
+        if (!isSecondPartDigit)
+        {
+            errorMessage = "Incorrect input, please try again!";
+            return null;
+        }
+        
         if (coordinateY == 0)
         {
             errorMessage = "Digit coordinate cannot be 0, please try again!";

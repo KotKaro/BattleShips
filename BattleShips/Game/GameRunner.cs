@@ -2,7 +2,7 @@ namespace BattleShips.Game;
 
 public class GameRunner
 {
-    public static void Play()
+    public void Play()
     {
         var personPlayerBoard = new PlayerBoard();
         var personOpponentBoard = new OpponentBoard();
@@ -18,50 +18,47 @@ public class GameRunner
             personOpponentBoard.Print();
             if (playTurn == PlayTurn.Computer)
             {
-                var coordinates = Coordinates.GenerateRandomCoordinates();
-                Console.WriteLine($"Computer coordinates are: {coordinates}");
-                Thread.Sleep(1000);
+                var coordinates = computerOpponentBoard.GenerateCoordinates();
+                WriteMessage($"Computer coordinates are: {coordinates}");
 
                 if (personPlayerBoard.WasShipHit(coordinates))
                 {
-                    WriteMessageAndWaitOneSecond("Computer hits yours ship!");
+                    WriteMessage("Computer hits yours ship!");
                     personPlayerBoard.MarkAsHit(coordinates);
                     computerOpponentBoard.MarkAsHit(coordinates);
                 }
                 else
                 {
-                    WriteMessageAndWaitOneSecond("Computer missed this time, yours turn");
+                    WriteMessage("Computer missed this time, yours turn");
+                    computerOpponentBoard.MarkAsMissed(coordinates);
                     playTurn = PlayTurn.Person;
                 }
             }
             else
             {
-                Console.WriteLine("Your turn, please provide hit coordinates like: A1, C4, H10, in range from A1 to J10");
-                Console.WriteLine("To finish game write: Q");
-                var redLine = Console.ReadLine();
-
-                if (redLine?.Equals("Q", StringComparison.OrdinalIgnoreCase) ?? false)
+                var userInput = RetrieveUserInput();
+                if (userInput?.Equals("Q", StringComparison.OrdinalIgnoreCase) ?? false)
                 {
-                    WriteMessageAndWaitOneSecond("Bye, see you next time!");
+                    WriteMessage("Bye, see you next time!");
                     break;
                 }
                 
-                var coordinates = Coordinates.CoordinatesFromString(redLine, out var errorMessage);
+                var coordinates = Coordinates.CoordinatesFromString(userInput, out var errorMessage);
                 if (!string.IsNullOrWhiteSpace(errorMessage))
                 {
-                    WriteMessageAndWaitOneSecond(errorMessage);
+                    WriteMessage(errorMessage);
                     continue;
                 }
                 
                 if (personPlayerBoard.WasShipHit(coordinates))
                 {
-                    WriteMessageAndWaitOneSecond("You hit computers ship!");
+                    WriteMessage("You hit computers ship!");
                     personPlayerBoard.MarkAsHit(coordinates);
                     computerOpponentBoard.MarkAsHit(coordinates);
                 }
                 else
                 {
-                    WriteMessageAndWaitOneSecond("You missed this time, computers turn");
+                    WriteMessage("You missed this time, computers turn");
                     personOpponentBoard.MarkAsMissed(coordinates);
                     playTurn = PlayTurn.Computer;
                 }
@@ -71,23 +68,31 @@ public class GameRunner
         }
     }
 
-    private static PlayTurn DrawFirstPlayer()
+    protected virtual string? RetrieveUserInput()
+    {
+        WriteMessage("Your turn, please provide hit coordinates like: A1, C4, H10, in range from A1 to J10");
+        WriteMessage("To finish game write: Q");
+        var redLine = Console.ReadLine();
+        return redLine;
+    }
+
+    private PlayTurn DrawFirstPlayer()
     {
         var playTurn = (PlayTurn)Math.Abs(Guid.NewGuid().GetHashCode() % 2);
         switch (playTurn)
         {
             case PlayTurn.Computer:
-                Console.WriteLine("You've got no luck this time! Computer is starting the game");
+                WriteMessage("You've got no luck this time! Computer is starting the game");
                 break;
             case PlayTurn.Person:
-                Console.WriteLine("Lucky you! You're starting the game");
+                WriteMessage("Lucky you! You're starting the game");
                 break;
         }
         
         return playTurn;
     }
     
-    private static void WriteMessageAndWaitOneSecond(string message)
+    protected virtual void WriteMessage(string message)
     {
         Console.WriteLine(message);
         Thread.Sleep(1000);

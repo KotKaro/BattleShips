@@ -2,4 +2,4 @@
 
 using BattleShips.Game;
 
-GameRunner.Play();
+new GameRunner().Play();
