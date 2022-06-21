@@ -1,106 +1,133 @@
+using BattleShips.Game.Exceptions;
+using BattleShips.Services;
+using BattleShips.Utils;
+
 namespace BattleShips.Game;
 
 public class GameRunner
 {
+    private readonly ILogger _logger;
+    private readonly IUserInputProvider _userInputProvider;
+
+    public GameRunner(ILogger logger, IUserInputProvider userInputProvider)
+    {
+        _logger = logger;
+        _userInputProvider = userInputProvider;
+    }
+    
     public void Play()
     {
-        var personPlayerBoard = new PlayerBoard();
-        var personOpponentBoard = new OpponentBoard();
+        var personPlayerBoard = new PlayerBoard(_logger);
+        var personOpponentBoard = new OpponentBoard(_logger);
         
-        var computerPlayerBoard = new PlayerBoard();
-        var computerOpponentBoard = new OpponentBoard();
+        var computerPlayerBoard = new PlayerBoard(_logger);
+        var computerOpponentBoard = new OpponentBoard(_logger);
 
-        Console.Clear();
-        PlayTurn? playTurn = DrawFirstPlayer();
+        _logger.Clear();
+        var playTurn = DrawFirstPlayer();
         while (personPlayerBoard.ContainsAnyShip() && computerPlayerBoard.ContainsAnyShip())
         {
             personPlayerBoard.Print();
             personOpponentBoard.Print();
-            if (playTurn == PlayTurn.Computer)
-            {
-                var coordinates = computerOpponentBoard.GenerateCoordinates();
-                WriteMessage($"Computer coordinates are: {coordinates}");
 
-                if (personPlayerBoard.WasShipHit(coordinates))
-                {
-                    WriteMessage("Computer hits yours ship!");
-                    personPlayerBoard.MarkAsHit(coordinates);
-                    computerOpponentBoard.MarkAsHit(coordinates);
-                }
-                else
-                {
-                    WriteMessage("Computer missed this time, yours turn");
-                    computerOpponentBoard.MarkAsMissed(coordinates);
-                    playTurn = PlayTurn.Person;
-                }
-            }
-            else
+            try
             {
-                var userInput = RetrieveUserInput();
-                if (userInput?.Equals("Q", StringComparison.OrdinalIgnoreCase) ?? false)
-                {
-                    WriteMessage("Bye, see you next time!");
-                    break;
-                }
-                
-                var coordinates = Coordinates.CoordinatesFromString(userInput, out var errorMessage);
-                if (!string.IsNullOrWhiteSpace(errorMessage))
-                {
-                    WriteMessage(errorMessage);
-                    continue;
-                }
-                
-                if (personPlayerBoard.WasShipHit(coordinates))
-                {
-                    WriteMessage("You hit computers ship!");
-                    personPlayerBoard.MarkAsHit(coordinates);
-                    computerOpponentBoard.MarkAsHit(coordinates);
-                }
-                else
-                {
-                    WriteMessage("You missed this time, computers turn");
-                    personOpponentBoard.MarkAsMissed(coordinates);
-                    playTurn = PlayTurn.Computer;
-                }
+                playTurn = playTurn == PlayTurn.Computer 
+                    ? ExecuteComputerPlay(computerOpponentBoard, personPlayerBoard) 
+                    : ExecuteHumanPlayTurn(personPlayerBoard, computerOpponentBoard, personOpponentBoard);
+            }
+            catch (NoMoreShipsException)
+            {
+                break;
             }
             
-            Console.Clear();
+            if (playTurn == PlayTurn.End)
+            {
+                break;
+            }
+            
+            _logger.Clear();
+        }
+
+        if (personPlayerBoard.ContainsAnyShip())
+        {
+            _logger.Log("Congratulations, you won!");
+        }
+
+        if (computerPlayerBoard.ContainsAnyShip())
+        {
+            _logger.Log("Unfortunately, this time computer won!");
         }
     }
 
-    protected virtual string? RetrieveUserInput()
+    private PlayTurn ExecuteHumanPlayTurn(PlayerBoard personPlayerBoard, OpponentBoard computerOpponentBoard, OpponentBoard personOpponentBoard)
     {
-        WriteMessage("Your turn, please provide hit coordinates like: A1, C4, H10, in range from A1 to J10");
-        WriteMessage("To finish game write: Q");
-        var redLine = Console.ReadLine();
-        return redLine;
+        _logger.Log("Your turn, please provide hit coordinates like: A1, C4, H10, in range from A1 to J10");
+        _logger.Log("To finish game write: Q");
+        var userInput = _userInputProvider.GetInput();
+        if (userInput?.Equals("Q", StringComparison.OrdinalIgnoreCase) ?? false)
+        {
+            _logger.Log("Bye, see you next time!");
+            return PlayTurn.End;
+        }
+
+        var coordinates = Coordinates.CoordinatesFromString(userInput, out var errorMessage);
+        if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            _logger.Log(errorMessage);
+            return PlayTurn.Person;
+        }
+
+        if (personPlayerBoard.WasShipHit(coordinates))
+        {
+            _logger.Log("You hit computers ship!");
+            personPlayerBoard.MarkAsHit(coordinates);
+            computerOpponentBoard.MarkAsHit(coordinates);
+        }
+        else
+        {
+            _logger.Log("You missed this time, computers turn");
+            personOpponentBoard.MarkAsMissed(coordinates);
+            return PlayTurn.Computer;
+        }
+
+        return PlayTurn.Person;
+    }
+
+    private PlayTurn ExecuteComputerPlay(OpponentBoard computerOpponentBoard, PlayerBoard personPlayerBoard)
+    {
+        var coordinates = computerOpponentBoard.GenerateCoordinates();
+        _logger.Log($"Computer coordinates are: {coordinates}");
+
+        if (personPlayerBoard.WasShipHit(coordinates))
+        {
+            _logger.Log("Computer hits yours ship!");
+            personPlayerBoard.MarkAsHit(coordinates);
+            computerOpponentBoard.MarkAsHit(coordinates);
+        }
+        else
+        {
+            _logger.Log("Computer missed this time, yours turn");
+            computerOpponentBoard.MarkAsMissed(coordinates);
+            return PlayTurn.Person;
+        }
+
+        return PlayTurn.Person;
     }
 
     private PlayTurn DrawFirstPlayer()
     {
-        var playTurn = (PlayTurn)Math.Abs(Guid.NewGuid().GetHashCode() % 2);
+        var playTurn = (PlayTurn)RandomUtils.GetRandomInRange(0, 1);
         switch (playTurn)
         {
             case PlayTurn.Computer:
-                WriteMessage("You've got no luck this time! Computer is starting the game");
+                _logger.Log("You've got no luck this time! Computer is starting the game");
                 break;
             case PlayTurn.Person:
-                WriteMessage("Lucky you! You're starting the game");
+                _logger.Log("Lucky you! You're starting the game");
                 break;
         }
         
         return playTurn;
     }
-    
-    protected virtual void WriteMessage(string message)
-    {
-        Console.WriteLine(message);
-        Thread.Sleep(1000);
-    }
-}
-
-public enum PlayTurn
-{
-    Computer = 0,
-    Person = 1
 }

@@ -1,14 +1,17 @@
 using System.Text;
+using BattleShips.Services;
 using BattleShips.Utils;
 
 namespace BattleShips.Game;
 
 public abstract class Board
 {
+    private readonly ILogger _logger;
     protected readonly string[,] BoardLines;
 
-    protected Board()
+    protected Board(ILogger logger)
     {
+        _logger = logger;
         BoardLines = new string[Constants.SizeLength, Constants.SizeLength];
         FillNumericColumns();
         FillLetterColumns();
@@ -32,7 +35,7 @@ public abstract class Board
             stringBuilder.AppendLine($"|{row[0],2}|{row[1],2}|{row[2],2}|{row[3],2}|{row[4],2}|{row[5],2}|{row[6],2}|{row[7],2}|{row[8],2}|{row[9],2}|{row[10],2}|");
         }
 
-        Console.WriteLine(stringBuilder.ToString());
+        _logger.Log(stringBuilder.ToString());
     }
     
     private void FillNumericColumns()

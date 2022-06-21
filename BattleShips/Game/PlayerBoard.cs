@@ -1,9 +1,12 @@
+using BattleShips.Services;
+using BattleShips.Utils;
+
 namespace BattleShips.Game;
 
 public class PlayerBoard : Board
 {
-    public PlayerBoard()
-    {
+    public PlayerBoard(ILogger logger) : base(logger)
+    {        
         AddShips();
     }
 
@@ -91,7 +94,7 @@ public class PlayerBoard : Board
 
     private static void SetShipDirection(int shipSize, ref int shipXLocationFinish, ref int shipYLocationFinish)
     {
-        var direction = Math.Abs(Guid.NewGuid().GetHashCode() % 4);
+        var direction = RandomUtils.GetRandomInRange(0, 3);
         switch (direction)
         {
             case 0:

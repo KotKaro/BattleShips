@@ -1,3 +1,5 @@
+using BattleShips.Utils;
+
 namespace BattleShips.Game;
 
 public class Coordinates
@@ -33,11 +35,10 @@ public class Coordinates
 
     private static int GenerateRandomNumberInRangeFromOneToSizeLength()
     {
-        var number = Guid.NewGuid().GetHashCode() % Constants.SizeLength;
-        return Math.Abs(number == 0 ? GenerateRandomNumberInRangeFromOneToSizeLength() : number);
+        return RandomUtils.GetRandomInRange(1, Constants.SizeLength);
     }
 
-    public static Coordinates CoordinatesFromString(string text, out string errorMessage)
+    public static Coordinates? CoordinatesFromString(string text, out string errorMessage)
     {
         if (string.IsNullOrWhiteSpace(text))
         {
