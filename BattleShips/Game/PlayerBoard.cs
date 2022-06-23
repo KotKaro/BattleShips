@@ -38,6 +38,7 @@ public class PlayerBoard : Board
     
     private void AddShips()
     {
+        // TODO: Refactor it to: PlayerBoardContentProvider - place there all methods and test it
         AddShip(4);
         AddShip(3);
         AddShip(3);

@@ -9,6 +9,8 @@ public abstract class Board
     private readonly ILogger _logger;
     protected readonly string[,] BoardLines;
 
+    
+    // TODO: Use some container for DI injection
     protected Board(ILogger logger)
     {
         _logger = logger;
@@ -25,6 +27,8 @@ public abstract class Board
         BoardLines[coordinates.ShipY, coordinates.ShipX] = Constants.MissedMark;
     }
     
+    
+    // TODO: Refactor it: Create Class BoardPrinter
     public void Print()
     {
         var stringBuilder = new StringBuilder();

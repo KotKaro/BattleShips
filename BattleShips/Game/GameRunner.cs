@@ -17,6 +17,7 @@ public class GameRunner
     
     public void Play()
     {
+        // TODO: Create player abstraction which is going to gather both of those boards
         var personPlayerBoard = new PlayerBoard(_logger);
         var personOpponentBoard = new OpponentBoard(_logger);
         
@@ -60,6 +61,7 @@ public class GameRunner
         }
     }
 
+    // TODO: Create match abstraction
     private PlayTurn ExecuteHumanPlayTurn(PlayerBoard personPlayerBoard, OpponentBoard computerOpponentBoard, OpponentBoard personOpponentBoard)
     {
         _logger.Log("Your turn, please provide hit coordinates like: A1, C4, H10, in range from A1 to J10");
@@ -94,6 +96,7 @@ public class GameRunner
         return PlayTurn.Person;
     }
 
+    // TODO: Create match abstraction
     private PlayTurn ExecuteComputerPlay(OpponentBoard computerOpponentBoard, PlayerBoard personPlayerBoard)
     {
         var coordinates = computerOpponentBoard.GenerateCoordinates();
@@ -115,6 +118,7 @@ public class GameRunner
         return PlayTurn.Person;
     }
 
+    // TODO: Create some drawer abstraction
     private PlayTurn DrawFirstPlayer()
     {
         var playTurn = (PlayTurn)RandomUtils.GetRandomInRange(0, 1);
