@@ -18,11 +18,11 @@ public class GameRunner
     public void Play()
     {
         // TODO: Create player abstraction which is going to gather both of those boards
-        var personPlayerBoard = new PlayerBoard(_logger);
-        var personOpponentBoard = new OpponentBoard(_logger);
+        var personPlayerBoard = new PlayerBoard(new BoardBuilder().WithShips().Build(),_logger);
+        var personOpponentBoard = new OpponentBoard(new BoardBuilder().Build(),_logger);
         
-        var computerPlayerBoard = new PlayerBoard(_logger);
-        var computerOpponentBoard = new OpponentBoard(_logger);
+        var computerPlayerBoard = new PlayerBoard(new BoardBuilder().WithShips().Build(), _logger);
+        var computerOpponentBoard = new OpponentBoard(new BoardBuilder().Build(),_logger);
 
         _logger.Clear();
         var playTurn = DrawFirstPlayer();

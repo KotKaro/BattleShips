@@ -33,4 +33,30 @@ public class BoardPointTests
         // assert
         boardPoint.PointType.Should().Be(PointType.Ship);
     }
+    
+    [Fact]
+    public void ChangeToMissed_PointTypeChangesToMissed()
+    {
+        // arrange
+        var boardPoint = new BoardPoint(new Point(1, 1), PointType.Empty);
+        
+        // act
+        boardPoint.ChangeToMissed();
+        
+        // assert
+        boardPoint.PointType.Should().Be(PointType.Missed);
+    }
+    
+    [Fact]
+    public void ChangeToSink_PointTypeChangesToMissed()
+    {
+        // arrange
+        var boardPoint = new BoardPoint(new Point(1, 1), PointType.Empty);
+        
+        // act
+        boardPoint.ChangeToSink();
+        
+        // assert
+        boardPoint.PointType.Should().Be(PointType.Sink);
+    }
 }

@@ -22,6 +22,16 @@ public class BoardPoint
     {
         PointType = PointType.Ship;
     }
+    
+    public void ChangeToMissed()
+    {
+        PointType = PointType.Missed;
+    }
+    
+    public void ChangeToSink()
+    {
+        PointType = PointType.Sink;
+    }
 
     public override string ToString()
     {

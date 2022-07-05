@@ -2,22 +2,31 @@ using System.Drawing;
 
 namespace BattleShips.Game;
 
-public class PlayerBoardContentProvider : IPlayerBoardContentProvider
+public class BoardBuilder : IBoardBuilder
 {
-    public BoardPoint[] Generate()
+    private readonly BoardPoint[] _boardPoints;
+
+    public BoardBuilder()
     {
-        var boardPoints = Enumerable.Range(0, 100)
+        _boardPoints = Enumerable.Range(0, 100)
             .Select(x => new BoardPoint(new Point((int)Math.Floor((double)(x / 10)), x % 10), PointType.Empty))
             .ToArray();
-
-        AddShip(5, boardPoints);
-        AddShip(4, boardPoints);
-        AddShip(4, boardPoints);
-
-        return boardPoints;
     }
     
-    private static void AddShip(int shipSize, BoardPoint[] boardPoints)
+    public IBoardBuilder WithShips()
+    {
+        AddShip(5);
+        AddShip(4);
+        AddShip(4);
+        return this;
+    }
+    
+    public BoardPoint[] Build()
+    {
+        return _boardPoints;
+    }
+    
+    private void AddShip(int shipSize)
     {
         var hasShipBeenPlaced = false;
         while (!hasShipBeenPlaced)
@@ -25,7 +34,7 @@ public class PlayerBoardContentProvider : IPlayerBoardContentProvider
 
             var ship = Ship.GenerateRandom(shipSize);
             var shipCells = ship.Iterate().ToArray();
-            var boardPointsToPlaceShip = boardPoints.Where(y => shipCells.Any(z => z.Point.Equals(y.Point)))
+            var boardPointsToPlaceShip = _boardPoints.Where(y => shipCells.Any(z => z.Point.Equals(y.Point)))
                 .ToArray();
             var isAnyCellAlreadyOccupied = boardPointsToPlaceShip
                 .Any(p => p.PointType == PointType.Ship);
@@ -42,9 +51,4 @@ public class PlayerBoardContentProvider : IPlayerBoardContentProvider
             hasShipBeenPlaced = true;
         }
     }
-}
-
-public interface IPlayerBoardContentProvider
-{
-    BoardPoint[] Generate();
 }
