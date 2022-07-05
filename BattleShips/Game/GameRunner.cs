@@ -18,19 +18,16 @@ public class GameRunner
     public void Play()
     {
         // TODO: Create player abstraction which is going to gather both of those boards
-        var personPlayerBoard = new PlayerBoard(new BoardBuilder().WithShips().Build(),_logger);
-        var personOpponentBoard = new OpponentBoard(new BoardBuilder().Build(),_logger);
-        
-        var computerPlayerBoard = new PlayerBoard(new BoardBuilder().WithShips().Build(), _logger);
-        var computerOpponentBoard = new OpponentBoard(new BoardBuilder().Build(),_logger);
+        var personPlayerBoard = new PlayerBoardFactory().Create();
+        var personOpponentBoard = new OpponentBoardFactory().Create();
+
+        var computerPlayerBoard = new PlayerBoardFactory().Create();
+        var computerOpponentBoard = new OpponentBoardFactory().Create();
 
         _logger.Clear();
         var playTurn = DrawFirstPlayer();
         while (personPlayerBoard.ContainsAnyShip() && computerPlayerBoard.ContainsAnyShip())
         {
-            personPlayerBoard.Print();
-            personOpponentBoard.Print();
-
             try
             {
                 playTurn = playTurn == PlayTurn.Computer 
@@ -133,5 +130,32 @@ public class GameRunner
         }
         
         return playTurn;
+    }
+}
+
+public class Match
+{
+    private readonly Player[] _players;
+
+    public Match(Player firstPlayer, Player secondPlayer)
+    {
+        _players = new[] { firstPlayer, secondPlayer };
+    }
+
+    public void Play()
+    {
+        
+    }
+}
+
+public class Player
+{
+    private readonly PlayerBoard _playerBoard;
+    private readonly OpponentBoard _opponentViewBoard;
+
+    public Player(PlayerBoard playerBoard, OpponentBoard opponentViewBoard)
+    {
+        _playerBoard = playerBoard;
+        _opponentViewBoard = opponentViewBoard;
     }
 }

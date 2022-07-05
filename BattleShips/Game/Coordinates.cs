@@ -8,7 +8,6 @@ public class Coordinates
 
     public int ShipY { get; private set; }
 
-
     public static Coordinates GenerateRandomCoordinates()
     {
         return new Coordinates(

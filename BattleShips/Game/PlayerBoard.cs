@@ -1,10 +1,8 @@
-using BattleShips.Services;
-
 namespace BattleShips.Game;
 
 public class PlayerBoard : Board
 {
-    public PlayerBoard(BoardPoint[] boardPoints, ILogger logger) : base(boardPoints, logger)
+    public PlayerBoard(BoardPoint[] boardPoints) : base(boardPoints)
     {
     }
 

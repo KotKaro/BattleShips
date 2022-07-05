@@ -5,7 +5,7 @@ namespace BattleShips.Game;
 
 public class OpponentBoard : Board
 {
-    public OpponentBoard(BoardPoint[] boardPoints, ILogger logger) : base(boardPoints, logger)
+    public OpponentBoard(BoardPoint[] boardPoints) : base(boardPoints)
     {        
     }
     

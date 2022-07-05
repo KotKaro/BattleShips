@@ -1,32 +1,17 @@
-using System.Drawing;
-
 namespace BattleShips.Game;
 
-public class BoardBuilder : IBoardBuilder
+public class PlayerBoardFactory : BoardFactoryBase, IPlayerBoardFactory
 {
-    private readonly BoardPoint[] _boardPoints;
-
-    public BoardBuilder()
+    public PlayerBoard Create()
     {
-        _boardPoints = Enumerable.Range(0, 100)
-            .Select(x => new BoardPoint(new Point((int)Math.Floor((double)(x / 10)), x % 10), PointType.Empty))
-            .ToArray();
+        var boardPoints = GenerateEmptyPoints();
+        AddShip(5, boardPoints);
+        AddShip(4, boardPoints);
+        AddShip(4, boardPoints);
+        return new PlayerBoard(boardPoints);
     }
     
-    public IBoardBuilder WithShips()
-    {
-        AddShip(5);
-        AddShip(4);
-        AddShip(4);
-        return this;
-    }
-    
-    public BoardPoint[] Build()
-    {
-        return _boardPoints;
-    }
-    
-    private void AddShip(int shipSize)
+    private static void AddShip(int shipSize, BoardPoint[] boardPoints)
     {
         var hasShipBeenPlaced = false;
         while (!hasShipBeenPlaced)
@@ -34,7 +19,7 @@ public class BoardBuilder : IBoardBuilder
 
             var ship = Ship.GenerateRandom(shipSize);
             var shipCells = ship.Iterate().ToArray();
-            var boardPointsToPlaceShip = _boardPoints.Where(y => shipCells.Any(z => z.Point.Equals(y.Point)))
+            var boardPointsToPlaceShip = boardPoints.Where(y => shipCells.Any(z => z.Point.Equals(y.Point)))
                 .ToArray();
             var isAnyCellAlreadyOccupied = boardPointsToPlaceShip
                 .Any(p => p.PointType == PointType.Ship);
