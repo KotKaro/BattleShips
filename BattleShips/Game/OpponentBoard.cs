@@ -1,5 +1,4 @@
 using BattleShips.Game.Exceptions;
-using BattleShips.Services;
 
 namespace BattleShips.Game;
 

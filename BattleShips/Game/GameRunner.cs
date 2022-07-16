@@ -144,7 +144,10 @@ public class Match
 
     public void Play()
     {
-        
+        while (_players.All(p => p.HasAnyShip()))
+        {
+            
+        }
     }
 }
 
@@ -157,5 +160,10 @@ public class Player
     {
         _playerBoard = playerBoard;
         _opponentViewBoard = opponentViewBoard;
+    }
+
+    public bool HasAnyShip()
+    {
+        return _playerBoard.ContainsAnyShip();
     }
 }
