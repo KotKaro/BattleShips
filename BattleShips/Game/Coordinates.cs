@@ -18,7 +18,7 @@ public class Coordinates
 
     public Coordinates(int shipX, int shipY)
     {
-        if (shipX is > Constants.SizeLength or < 1 || shipY is > Constants.SizeLength or < 1)
+        if (shipX is > Constants.SizeLength or < 0 || shipY is > Constants.SizeLength or < 0)
         {
             throw new ArgumentException("Provided coordinates are out of game board!");
         }

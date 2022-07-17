@@ -1,3 +1,4 @@
+using System.Drawing;
 using BattleShips.Game.Exceptions;
 using BattleShips.Services;
 using BattleShips.Utils;
@@ -142,11 +143,24 @@ public class Match
         _players = new[] { firstPlayer, secondPlayer };
     }
 
+    
+    // TODO: Refactor play to be kind of play round - where input is provided and excpetion is
+    // throw when incorrect player is trying to make move
+    // in case of miss change player which move next is expected
     public void Play()
     {
         while (_players.All(p => p.HasAnyShip()))
         {
-            
+            foreach (var player in _players)
+            {
+                var opponent = _players.First(x => x != player);
+                var hitShip = true;
+                while (hitShip)
+                {
+                    var input = player.GetInput();
+                    hitShip = opponent.TryHit(input);
+                }
+            }   
         }
     }
 }
@@ -155,15 +169,38 @@ public class Player
 {
     private readonly PlayerBoard _playerBoard;
     private readonly OpponentBoard _opponentViewBoard;
+    
+    public Guid Id { get; }
 
     public Player(PlayerBoard playerBoard, OpponentBoard opponentViewBoard)
     {
         _playerBoard = playerBoard;
         _opponentViewBoard = opponentViewBoard;
+        Id = Guid.NewGuid();
     }
 
     public bool HasAnyShip()
     {
         return _playerBoard.ContainsAnyShip();
+    }
+
+    public bool TryHit(Coordinates point)
+    {
+        var wasHit = _playerBoard.TryHit(point);
+        if (wasHit)
+        {
+            _opponentViewBoard.MarkAsHit(point);
+        }
+        else
+        {
+            _opponentViewBoard.MarkAsMissed(point);
+        }
+
+        return wasHit;
+    }
+
+    public Coordinates GetInput()
+    {
+        throw new NotImplementedException();
     }
 }

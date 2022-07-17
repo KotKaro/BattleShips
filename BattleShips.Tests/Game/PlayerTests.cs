@@ -34,12 +34,22 @@ public class PlayerTests
         var points = _factory.Create().BoardPoints;
         points.First().ChangeToShip();
         
-        var sut = new Player(new PlayerBoard(_factory.Create().BoardPoints), _factory.Create());
+        var sut = new Player(new PlayerBoard(points), _factory.Create());
         
         // Act
         var result = sut.HasAnyShip();
         
         // Assert
         result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Constructor_PlayerGotRandomGuidAssigned()
+    {
+        // Act
+        var sut = new Player(new PlayerBoard(_factory.Create().BoardPoints), _factory.Create());
+        
+        // Assert
+        sut.Id.Should().NotBeEmpty();
     }
 }
