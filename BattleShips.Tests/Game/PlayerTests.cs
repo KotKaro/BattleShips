@@ -52,4 +52,58 @@ public class PlayerTests
         // Assert
         sut.Id.Should().NotBeEmpty();
     }
+    
+    [Fact]
+    public void MarkHitOnOpponentBoard_ChangesPointOnOpponentBoardToSink()
+    {
+        // Arrange
+        var coordinates = Coordinates.GenerateRandomCoordinates();
+        var opponentBoard = _factory.Create();
+        var sut = new Player(new PlayerBoard(_factory.Create().BoardPoints), opponentBoard);
+        
+        // Act
+        sut.MarkHitOnOpponentBoard(coordinates);
+        
+        // Assert
+        opponentBoard.BoardPoints.First(x => x.Point.X == coordinates.ShipX && x.Point.Y == coordinates.ShipY)
+            .PointType
+            .Should()
+            .Be(PointType.Sink);
+    }
+    
+    [Fact]
+    public void MarkMissOnOpponentBoard_ChangesPointOnOpponentBoardToMissed()
+    {
+        // Arrange
+        var coordinates = Coordinates.GenerateRandomCoordinates();
+        var opponentBoard = _factory.Create();
+        var sut = new Player(new PlayerBoard(_factory.Create().BoardPoints), opponentBoard);
+        
+        // Act
+        sut.MarkMissOnOpponentBoard(coordinates);
+        
+        // Assert
+        opponentBoard.BoardPoints.First(x => x.Point.X == coordinates.ShipX && x.Point.Y == coordinates.ShipY)
+            .PointType
+            .Should()
+            .Be(PointType.Missed);
+    }
+    
+    [Fact]
+    public void MarkAsHitAtOwnBoard_ChangesPointOnOwnBoardToMissed()
+    {
+        // Arrange
+        var coordinates = Coordinates.GenerateRandomCoordinates();
+        var boardPoints = _factory.Create().BoardPoints;
+        var sut = new Player(new PlayerBoard(boardPoints), _factory.Create());
+        
+        // Act
+        sut.MarkAsHitAtOwnBoard(coordinates);
+        
+        // Assert
+        boardPoints.First(x => x.Point.X == coordinates.ShipX && x.Point.Y == coordinates.ShipY)
+            .PointType
+            .Should()
+            .Be(PointType.Sink);
+    }
 }

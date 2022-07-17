@@ -137,7 +137,7 @@ public class GameRunner
 public class Match
 {
     private readonly Player[] _players;
-    private readonly Guid _currentRoundPlayerId;
+    private Guid _currentRoundPlayerId;
 
     public Match(Player firstPlayer, Player secondPlayer)
     {
@@ -145,28 +145,33 @@ public class Match
         _currentRoundPlayerId = firstPlayer.Id;
     }
     
-    // TODO: Refactor play to be kind of play round - where input is provided and excpetion is
-    // throw when incorrect player is trying to make move
-    // in case of miss change player which move next is expected
     public void Play(Coordinates input, Guid playerId)
     {
         if (input is null)
         {
             throw new ArgumentNullException(nameof(input), "Provided coordinates are null!");
         }
-        
-        
-        while (_players.All(p => p.HasAnyShip()))
+
+        if (_currentRoundPlayerId != playerId)
         {
-            foreach (var player in _players)
-            {
-                var opponent = _players.First(x => x != player);
-                var hitShip = true;
-                while (hitShip)
-                {
-                    hitShip = opponent.TryHit(input);
-                }
-            }   
+            throw new ArgumentException(
+                $"Current round should be played for player with id: {_currentRoundPlayerId} - not for: {playerId}"
+            );
+        }
+
+        var currentRoundPlayer = _players.First(x => x.Id == playerId);
+        var currentRoundOpponent = _players.First(x => x.Id != playerId);
+
+        var wasHit = currentRoundOpponent.ContainsShipAtPoint(input);
+        if (wasHit)
+        {
+            currentRoundOpponent.MarkAsHitAtOwnBoard(input);
+            currentRoundPlayer.MarkHitOnOpponentBoard(input);
+        }
+        else
+        {
+            currentRoundPlayer.MarkMissOnOpponentBoard(input);
+            _currentRoundPlayerId = currentRoundOpponent.Id;
         }
     }
 }
@@ -190,23 +195,23 @@ public class Player
         return _playerBoard.ContainsAnyShip();
     }
 
-    public bool TryHit(Coordinates point)
+    public bool ContainsShipAtPoint(Coordinates point)
     {
-        var wasHit = _playerBoard.TryHit(point);
-        if (wasHit)
-        {
-            _opponentViewBoard.MarkAsHit(point);
-        }
-        else
-        {
-            _opponentViewBoard.MarkAsMissed(point);
-        }
-
-        return wasHit;
+        return _playerBoard.ContainsShipAtPoint(point);
     }
 
-    public Coordinates GetInput()
+    public void MarkHitOnOpponentBoard(Coordinates input)
     {
-        throw new NotImplementedException();
+        _opponentViewBoard.MarkAsHit(input);
+    }
+
+    public void MarkMissOnOpponentBoard(Coordinates input)
+    {
+        _opponentViewBoard.MarkAsMissed(input);
+    }
+
+    public void MarkAsHitAtOwnBoard(Coordinates input)
+    {
+        _playerBoard.MarkAsHit(input);
     }
 }

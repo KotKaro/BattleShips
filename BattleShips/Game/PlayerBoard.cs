@@ -21,16 +21,9 @@ public class PlayerBoard : Board
         return BoardPoints.Any(x => x.PointType == PointType.Ship);
     }
 
-    public bool TryHit(Coordinates point)
+    public bool ContainsShipAtPoint(Coordinates point)
     {
         var boardPoint = BoardPoints.First(x => x.Point.X == point.ShipX && x.Point.Y == point.ShipY);
-        if (boardPoint.PointType != PointType.Ship)
-        {
-            return false;
-        }
-        
-        boardPoint.ChangeToSink();
-        return true;
-
+        return boardPoint.PointType == PointType.Ship;
     }
 }

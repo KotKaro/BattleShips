@@ -15,30 +15,28 @@ public class PlayerBoardTests
     }
 
     [Fact]
-    public void TryHit_DoesNotHaveShipAtProvidedCoordinates_ReturnFalseAndPointIsUnmodified()
+    public void ContainsShipAtPoint_DoesNotHaveShipAtProvidedCoordinates_ReturnFalse()
     {
         // Arrange
         var firstEmptyPoint = _sut.BoardPoints.First(x => x.PointType == PointType.Empty);
         
         // Act
-        var result = _sut.TryHit(new Coordinates(firstEmptyPoint.Point.X, firstEmptyPoint.Point.Y));
+        var result = _sut.ContainsShipAtPoint(new Coordinates(firstEmptyPoint.Point.X, firstEmptyPoint.Point.Y));
         
         // Assert
         result.Should().BeFalse();
-        _sut.BoardPoints.First(x => x == firstEmptyPoint).PointType.Should().Be(PointType.Empty);
     }
     
     [Fact]
-    public void TryHit_DoesHaveShipAtProvidedCoordinates_ReturnTrueAndPointIsSink()
+    public void ContainsShipAtPoint_DoesHaveShipAtProvidedCoordinates_ReturnTrue()
     {
         // Arrange
         var firstEmptyPoint = _sut.BoardPoints.First(x => x.PointType == PointType.Ship);
         
         // Act
-        var result = _sut.TryHit(new Coordinates(firstEmptyPoint.Point.X, firstEmptyPoint.Point.Y));
+        var result = _sut.ContainsShipAtPoint(new Coordinates(firstEmptyPoint.Point.X, firstEmptyPoint.Point.Y));
         
         // Assert
         result.Should().BeTrue();
-        _sut.BoardPoints.First(x => x == firstEmptyPoint).PointType.Should().Be(PointType.Sink);
     }
 }

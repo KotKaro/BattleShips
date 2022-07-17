@@ -11,19 +11,19 @@ public class MatchTests
     private readonly Player _playerA;
     private readonly Player _playerB;
     private readonly Match _sut;
-    private readonly PlayerBoard _playerBplayerBoard;
-    private readonly OpponentBoard _playerAopponentBoard;
+    private readonly PlayerBoard _playerBPlayerBoard;
+    private readonly OpponentBoard _playerAOpponentBoard;
 
     public MatchTests()
     {
         var opponentBoardFactory = new OpponentBoardFactory();
         var playerBoardFactory = new PlayerBoardFactory();
 
-        _playerAopponentBoard = opponentBoardFactory.Create();
-        _playerA = new Player(playerBoardFactory.Create(), opponentBoardFactory.Create());
+        _playerAOpponentBoard = opponentBoardFactory.Create();
+        _playerA = new Player(playerBoardFactory.Create(), _playerAOpponentBoard);
 
-        _playerBplayerBoard = playerBoardFactory.Create();
-        _playerB = new Player(_playerBplayerBoard, opponentBoardFactory.Create());
+        _playerBPlayerBoard = playerBoardFactory.Create();
+        _playerB = new Player(_playerBPlayerBoard, opponentBoardFactory.Create());
         _sut = new Match(_playerA, _playerB);
     }
     
@@ -45,7 +45,7 @@ public class MatchTests
     public void Play_PlayerMissesAndTriesToPlayOnceAgain_ArgumentExceptionIsThrownBecauseItsOtherPlayerRound()
     {
         // Arrange
-        var firstEmptyPoint = _playerBplayerBoard.BoardPoints.First(x => x.PointType == PointType.Empty);
+        var firstEmptyPoint = _playerBPlayerBoard.BoardPoints.First(x => x.PointType == PointType.Empty);
         var firstEmptyPointCoordinates = new Coordinates(firstEmptyPoint.Point.X, firstEmptyPoint.Point.Y);
         _sut.Play(firstEmptyPointCoordinates, _playerA.Id);
         
@@ -57,7 +57,7 @@ public class MatchTests
     public void Play_PlayerDoesNotMiss_CanPlaySecondTimeForSamePlayerAndDoesNotThrowException()
     {
         // Arrange
-        var firstShipPoint = _playerBplayerBoard.BoardPoints.First(x => x.PointType == PointType.Ship);
+        var firstShipPoint = _playerBPlayerBoard.BoardPoints.First(x => x.PointType == PointType.Ship);
         var firstCoordinateWithShip = new Coordinates(firstShipPoint.Point.X, firstShipPoint.Point.Y);
         _sut.Play(firstCoordinateWithShip, _playerA.Id);
         
@@ -77,18 +77,18 @@ public class MatchTests
     public void Play_PlayerDoesNotMiss_PointChangesToSinkOnPlayersOpponentBoardAndOnOpponentPlayersBoardAlsoToSink()
     {
         // Arrange
-        var firstShipPoint = _playerBplayerBoard.BoardPoints.First(x => x.PointType == PointType.Ship);
+        var firstShipPoint = _playerBPlayerBoard.BoardPoints.First(x => x.PointType == PointType.Ship);
         var firstCoordinateWithShip = new Coordinates(firstShipPoint.Point.X, firstShipPoint.Point.Y);
         
         // Act
         _sut.Play(firstCoordinateWithShip, _playerA.Id);
         
         // Assert
-        _playerAopponentBoard.BoardPoints.First(x => x.Point.Equals(firstShipPoint.Point))
+        _playerAOpponentBoard.BoardPoints.First(x => x.Point.Equals(firstShipPoint.Point))
             .PointType
             .Should()
             .Be(PointType.Sink);
-        _playerBplayerBoard.BoardPoints.First(x => x.Point.Equals(firstShipPoint.Point))
+        _playerBPlayerBoard.BoardPoints.First(x => x.Point.Equals(firstShipPoint.Point))
             .PointType
             .Should()
             .Be(PointType.Sink);
@@ -98,14 +98,14 @@ public class MatchTests
     public void Play_PlayerDoesMiss_PointChangesToMissedOnlyOnPlayerAOpponentBoard()
     {
         // Arrange
-        var firstEmptyPoint = _playerBplayerBoard.BoardPoints.First(x => x.PointType == PointType.Empty);
+        var firstEmptyPoint = _playerBPlayerBoard.BoardPoints.First(x => x.PointType == PointType.Empty);
         var firstEmptyCoordinates = new Coordinates(firstEmptyPoint.Point.X, firstEmptyPoint.Point.Y);
         
         // Act
         _sut.Play(firstEmptyCoordinates, _playerA.Id);
         
         // Assert
-        _playerAopponentBoard.BoardPoints.First(x => x.Point.Equals(firstEmptyPoint.Point))
+        _playerAOpponentBoard.BoardPoints.First(x => x.Point.Equals(firstEmptyPoint.Point))
             .PointType
             .Should()
             .Be(PointType.Missed);
